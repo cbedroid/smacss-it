@@ -1,0 +1,206 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+''' 
+GITHUB:
+  https://github.com/cbedroid
+'''
+__author__ = 'CbeDroid'
+__created__ = 'July 3, 2020'
+__description__ ='''
+    Automatically create SMACSS files structure.
+    For more info visit: http://smacss.com/book/
+    '''
+
+import os 
+import re 
+import sys 
+import textwrap
+import argparse
+
+class MakeSmacss():
+    app_imports = [] # file to store all imports for app.sass
+    modulars = ['plugins' ,'bases', 'layouts', 'modules', 'states','themes']
+
+    def __init__(self,extention="sass"):
+        extention = extention or 'sass' 
+        self.extention = extention
+        self.rules = list(map(lambda rule: rule.format(self.extention),
+                        ['app.{}', '_vars.{}',
+                        '_animations.{}','_mixins.{}'
+                        '_breakpoints.{}'
+                        ]
+                      ))
+        self.modulars = self.add_affix()
+
+    def add_affix(self):
+        """ Add prefix and suffix to dirs folders"""
+        return ['{}-{}'.format(index,dir) for index,dir in enumerate(self.modulars)]
+
+    @staticmethod
+    def createFile(filename):
+        return os.system('sudo touch {}'.format(filename))
+
+    def writeImports(self,filename,importpath):
+        # write imports to all sass files
+        stringimport = os.path.basename(importpath)
+        imports = re.sub(r"(_|\.|{})".format(self.extention),
+                      "",
+                      '@import "{}"'.format(stringimport)
+                      )
+
+        if os.path.isdir(importpath): # only when formatting import to app.sass 
+            '''
+                Write imports for modulars to app.sass
+                                    |--------------
+                Example: app.sass --|   "@import 0-plugin/_plugins-dir
+                                    |   "@import 1-layout/_layout-dir
+                                    | -------
+            '''
+            imports = imports[:-1] + re.sub(r'\d\-(\w*)',r'/_\1-dir"',stringimport)
+
+        # write to file
+        with open(filename,'a') as f:
+            # add semicolon to the end of imports if not using pure sass structure
+            semicolon = ";" if self.extention != "sass" else "" 
+            f.write(imports+"{}\n".format(semicolon))
+
+
+    def sassSetup(self):
+        # create all modulars and modulars' sass files
+        for s in self.modulars:
+            MODULAR_DIR = os.path.abspath('./%s/'%s)
+            try:
+                os.mkdir(MODULAR_DIR)
+            except FileExistsError:
+                print('\n!! ModularExistError:  %s exist already !!'%s)
+            except:
+                pass
+            self.app_imports.append(MODULAR_DIR)
+            modular_dir = os.path.join(MODULAR_DIR,
+                            re.sub(r'\d\-(\w*)',
+                            r"_\1-dir.{}".format(self.extention), 
+                            s))
+
+            modular_rule = os.path.join(MODULAR_DIR,
+                            re.sub(r'\d\-(\w*)s\b',
+                            r"_\1.{}".format(self.extention),
+                             s))
+            
+            self.createFile(modular_dir)
+            self.createFile(modular_rule)
+            self.writeImports(modular_dir,modular_rule)
+            print('\n-- Created folder: {}:\n\t{}\n\t{}'.format(s,modular_dir,modular_rule))
+
+class SmartFormatter(argparse.RawDescriptionHelpFormatter):
+    """ Format argumenparser text """
+    # Source:  Stack overflow
+    # https://stackoverflow.com/questions/3853722/python-argparse-how-to-insert-newline-in-the-help-text
+    # Author: Anthon
+    # Edited by: Cbedroid
+
+    def _split_lines(self, text, width):
+        splitter = ['\n','R|','\r']
+        tab = "\t"
+        for s in splitter:
+            if text.startswith("\t"):
+                tab_count = text.count(tab) 
+                text = re.sub(tab,"  ",text)
+            if text.startswith(s):
+                return text[len(s):].splitlines()  
+        # this is the RawTextHelpFormatter._split_lines
+        return argparse.RawDescriptionHelpFormatter._split_lines(self, text, width)
+
+def main():
+    parser = argparse.ArgumentParser(
+             prog='makesmacss',
+             formatter_class=SmartFormatter,
+             description=textwrap.dedent('''\
+                \t*********************************************************
+                  \t*             SMACSS BOILER PLATE                       *   
+                  \t*                                                       *  
+                  \t*      Create SASS/SCSS files and folders               * 
+                  \t*-------------------------------------------------------* 
+                  \t*                                                       *
+                  \t* A flexible guide to developing sites small and large. *
+                  \t*          Documentations:                              * 
+                  \t*         ------------------                            *
+                  \t*     SMACSS: https://smacss.com                        *
+                  \t*     SASS:   https://sass-guidelin.es                  *
+                  \t*                                                       *
+                  \t*********************************************************
+                 '''
+    ))
+    parser.add_argument('-l','--list',help='list all smacss dirs',action='store_true')
+    parser.add_argument('-m','--modular' ,help='''
+                        Add additional smacss modulars.
+                        Modulars can be place in a specific order by adding a number followed by a dash (-).
+                        Example: [number]-[name_of_modular] --> 6-icons
+                        ''',
+            nargs='+',type=str)
+    
+    parser.add_argument('-s','--scss',help='Use scss format ( default: .sass)',action='store_true')
+    parser.add_argument('-e','--exclude',help='excludes creating a smacss dir folder',
+            nargs="+",type=str)
+
+    args = parser.parse_args()
+
+    SF = MakeSmacss.modulars.copy()
+
+    exclude = args.exclude or None
+    listdir = args.list or None
+    modular = args.modular or None
+    scss = args.scss or None
+    if args:
+        if listdir:
+            print('\nSMACSS MODULAR FOLDERS:')
+            [print("\t%s-%s"%(c,x)) for c,x in enumerate(MakeSmacss.modulars)]
+            return
+
+        if modular:
+            modular = [mod.strip().lower() for mod in  modular]
+            basemods = [re.sub(r'[^a-zA-Z]*','',mod)  for mod in modular]
+            for basemod,mod in zip(basemods,modular):
+                if basemod not in MakeSmacss.modulars:
+                    # check for order index in modular
+                    order = re.search(r'(\d*)-',mod)
+                    index  = order.group(1) if order else None
+
+                    # add modular in specified index
+                    if index:
+                        MakeSmacss.modulars.insert(int(index),basemod)
+                    else:
+                        MakeSmacss.modulars.append(basemod)
+
+        if scss:
+          extention = "scss" 
+
+        if exclude:
+            [MakeSmacss.modulars.remove(sf) for sf in SF for e in exclude if e and e.lower().strip() in sf]
+
+
+    #---------- MAIN --------------------#
+    extention = "scss" if scss else 'sass'
+    del SF
+
+    # add prefix to modulars names --> plugins --> 0-plugins
+    modulars = ["%s-%s"%(index,name) for  index,name in enumerate(MakeSmacss.modulars)]
+
+    # Initialize MakeSmacss with selected extention (sass or scss)
+    smacss = MakeSmacss(extention)
+    APPFILE = os.path.abspath('./app.{}'.format(smacss.extention))
+
+    # write imports for modulars to "[modulars name ]-dir.sass"
+    for sf in smacss.rules:
+        if args:
+            SMACSS_RULE = os.path.abspath('./%s'%sf)
+            if sf != "app.{}".format(smacss.extention):
+                smacss.writeImports(APPFILE,SMACSS_RULE)
+            smacss.createFile(sf)
+        
+
+    smacss.sassSetup()
+    # write imports to app.sass
+    for imp in smacss.app_imports:
+        smacss.writeImports(APPFILE,imp)
+
+main()
