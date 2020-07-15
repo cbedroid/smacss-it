@@ -26,8 +26,8 @@ class MakeSmacss():
         self.extention = extention
         self.rules = list(map(lambda rule: rule.format(self.extention),
                         ['app.{}', '_vars.{}',
-                        '_animations.{}','_mixins.{}'
-                        '_breakpoints.{}'
+                        '_animations.{}','_mixins.{}',
+                        '_breakpoints.{}',
                         ]
                       ))
         self.modulars = self.add_affix()
@@ -112,7 +112,7 @@ class SmartFormatter(argparse.RawDescriptionHelpFormatter):
 
 def main():
     parser = argparse.ArgumentParser(
-             prog='makesmacss',
+             prog='Smacss_It',
              formatter_class=SmartFormatter,
              description=textwrap.dedent('''\
                 \t*********************************************************
@@ -130,17 +130,16 @@ def main():
                   \t*********************************************************
                  '''
     ))
-    parser.add_argument('-l','--list',help='list all smacss dirs',action='store_true')
+    parser.add_argument('-l','--list',help='List all smacss dirs',action='store_true')
     parser.add_argument('-m','--modular' ,help='''
-                        Add additional smacss modulars.
-                        Modulars can be place in a specific order by adding a number followed by a dash (-).
-                        Example: [number]-[name_of_modular] --> 6-icons
-                        ''',
-            nargs='+',type=str)
-    
+        * Add additional smacss modulars.
+        * Modulars can be place in a specific order by adding a number followed by a dash (-).
+        * Example: [number]-[name_of_modular] --> 6-icons
+        ''',
+        nargs='+',type=str)
     parser.add_argument('-s','--scss',help='Use scss format ( default: .sass)',action='store_true')
-    parser.add_argument('-e','--exclude',help='excludes creating a smacss dir folder',
-            nargs="+",type=str)
+    parser.add_argument('-e','--exclude',help='Excludes creating a modular dir folder',
+       nargs="+",type=str)
 
     args = parser.parse_args()
 
@@ -152,7 +151,7 @@ def main():
     scss = args.scss or None
     if args:
         if listdir:
-            print('\nSMACSS MODULAR FOLDERS:')
+            print('\nSMACSS DIRS FOLDER:')
             [print("\t%s-%s"%(c,x)) for c,x in enumerate(MakeSmacss.modulars)]
             return
 
