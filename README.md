@@ -22,27 +22,28 @@ If you are using HTML & CSS inside of your project. Installing and creating boil
 
 ## Getting Started
 
-- **Open linux terminal.**
+- Open linux terminal.
 
-- **Clone this repo using `sudo git clone https://github.com/cbderoid/smacss_it.git`**
+- Clone this repo using **`sudo git clone https://github.com/cbderoid/smacss_it.git`**
 
   ```bash
   sudo git clone https://github.com/cbderoid/smacss_it.git
   ```
 
-- **Navigate to repo folder by typing <span>`cd "path-to-this-repo-folder"`</span>**
+- Navigate to repo folder by typing **<span>`cd "path-to-this-repo-folder"`</span>**
 
   ```bash
   cd "path-to-this-repo-folder"
   ```
 
-- **Move `smacssit` file to `/usr/bin` by typing `sudo mv smacssit /usr/bin/`**  
-   
-   ```bash
-   sudo mv smacssit /usr/bin/
-   ```
+- Move **`smacssit`** file to **`/usr/bin`** by typing **`sudo mv smacssit /usr/bin/`**
 
-- **Make sure file is executable through system - `sudo chmod +x /usr/bin/smacssit`**
+  ```bash
+  sudo mv smacssit /usr/bin/
+  ```
+
+- Make sure file is executable through system - **`sudo chmod +x /usr/bin/smacssit`**
+
   ```bash
   sudo chmod +x /usr/bin/smacssit
   ```
@@ -54,6 +55,18 @@ If you are using HTML & CSS inside of your project. Installing and creating boil
 Right out the box, smacssit is configured to created the basic folders and filesystem.
 
 Following SMACSS Guide Rules , SmacssIt will create the following folders and files.
+
+**To run smacssit, first cd to your project SASS's directory. <span>`cd "your-project-sass-folder"`</span>**
+
+```bash
+cd "path-to-your-project-sass-folder"
+```
+
+**Lastly, Let's create the SMACSS folder structure, now type `sudo smacssit`**
+
+```bash
+sudo smacssit
+```
 
 ```bash
 ├── 0-plugins
@@ -83,7 +96,6 @@ Following SMACSS Guide Rules , SmacssIt will create the following folders and fi
 
 <pre><b><small><font color="#0EC7FF">For more details on this file structure, visit: </small>
      <a href ="https://www.youtube.com/watch?v=c3fwnwSRGU0"><img src="https://cdn.fastly.picmonkey.com/content4/previews/social/social_33_550.png" alt="" width="35" height="35"/><font size="3" color="#00"> <b>BRAD HUSSEY</b> - Sass Best Practices </font></a></pre>
-
 
 ## Usage
 
