@@ -38,7 +38,10 @@ class MakeSmacss():
 
     @staticmethod
     def createFile(filename):
-        return os.system('sudo touch {}'.format(filename))
+        try:
+            return os.system('sudo touch {}  2> /dev/null'.format(filename))
+        except:
+            return os.system('touch {}'.format(filename))
 
     def writeImports(self,filename,importpath):
         # write imports to all sass files
